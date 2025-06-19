@@ -106,9 +106,9 @@ if not df.empty:
     fig, ax = plt.subplots(figsize=(10, 6))
 
     ax.plot(df["fecha"], df["dolor_mañanero"], marker='o', linestyle='-', label='Dolor Mañanero')
-    ax.plot(df["fecha"], df["dolor_DL"], marker='o', color='red', label='Saltos DL')
-    ax.plot(df["fecha"], df["dolor_SL_izq"], marker='o', color='green', label='Saltos SL izq')
-    ax.plot(df["fecha"], df["dolor_SL_desplazamiento"], marker='o', color='yellow', label='Saltos desplazamiento')
+    ax.plot(df["fecha"], df["dolor_DL"], marker='o', linestyle='-', color='red', label='Saltos DL')
+    ax.plot(df["fecha"], df["dolor_SL_izq"], marker='o', linestyle='-', color='green', label='Saltos SL izq')
+    ax.plot(df["fecha"], df["dolor_SL_desplazamiento"], marker='o', linestyle='-', color='yellow', label='Saltos desplazamiento')
 
     ax.axvspan(pd.Timestamp('2025-05-31'), pd.Timestamp('2025-06-08'), color='purple', alpha=0.15, label='Periodo inactivo')
 
@@ -139,7 +139,6 @@ if not df.empty:
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Indice Dolor")
     ax.set_ylim([0, 10.5])
-    ax.set_title("Evolución Aquiles")
     ax.grid(True)
     fig.tight_layout()
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right")  # rota etiquetas del eje x para mejor lectura
