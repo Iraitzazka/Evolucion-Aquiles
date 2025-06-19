@@ -12,6 +12,12 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
+# Inicializa el estado si no está presente
+if "guardar_click" not in st.session_state:
+    st.session_state.guardar_click = False
+if "confirmar_overwrite" not in st.session_state:
+    st.session_state.confirmar_overwrite = False
+
 # Carga credenciales
 @st.cache_resource
 def get_gsheet_client():
@@ -47,6 +53,10 @@ def borrar_fila_fecha(fecha_buscada):
             sheet.delete_rows(idx + 2)  # +2: porque sheet es 1-indexado y la 1ra fila es cabecera
             break
 
+# Función para manejar el click
+def guardar_click_callback():
+    st.session_state.guardar_click = True
+
 # Cargar datos
 try:
     df = leer_datos()
@@ -62,7 +72,7 @@ correr_hoy_opcion = st.radio("¿Has corrido hoy?", ["Sí", "No"])
 correr_hoy = 1 if correr_hoy_opcion == "Sí" else 0
 
 # Input: Fuerza
-fuerza_hoy_opcion = st.radio("¿Has Hecho ejercicio de fuerza hoy?", ["Sí", "No"])
+fuerza_hoy_opcion = st.radio("¿Has hecho ejercicio de fuerza hoy?", ["Sí", "No"])
 fuerza_hoy = 1 if fuerza_hoy_opcion == "Sí" else 0
 
 # Input: Saltos
@@ -79,22 +89,24 @@ else:
     dolor_SL_desplazamiento = None
 
 #Boton Para Guargar
-if st.button("Guardar datos de hoy"):
+st.button("Guardar datos de hoy", on_click=guardar_click_callback)
+if st.session_state.guardar_click:
     hoy_str = hoy.isoformat()  # string 'YYYY-MM-DD'
     if (df["fecha"].dt.date == datetime.now().date()).any():
         st.warning("Ya hay un valor guardado para hoy.")
         # Mostrar checkbox de confirmación
-        confirmar = st.checkbox("¿Deseas sobrescribir los datos de hoy?")
+        st.session_state.confirmar_overwrite = st.checkbox("¿Deseas sobrescribir los datos de hoy?", value=st.session_state.confirmar_overwrite)
 
-        if confirmar:
+        if st.session_state.confirmar_overwrite:
             borrar_fila_fecha(hoy_str)
-            guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq,
-                         dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
+            guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
             st.success("Valores sobrescritos.")
+            st.session_state.guardar_click = False
             st.experimental_rerun()
     else:
         guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
         st.success("Valores guardados.")
+        st.session_state.guardar_click = False
         st.experimental_rerun()
 
 df = df.replace({None: np.nan})
