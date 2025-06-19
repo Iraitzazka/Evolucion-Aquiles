@@ -4,9 +4,10 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+import numpy as np
 
 # Obtener el día actual
-hoy = datetime.today()
+hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
@@ -79,24 +80,25 @@ else:
 
 #Boton Para Guargar
 if st.button("Guardar datos de hoy"):
-    hoy = datetime.now().date().isoformat()  # string 'YYYY-MM-DD'
+    hoy_str = hoy.isoformat()  # string 'YYYY-MM-DD'
     if (df["fecha"].dt.date == datetime.now().date()).any():
         st.warning("Ya hay un valor guardado para hoy.")
         # Mostrar checkbox de confirmación
         confirmar = st.checkbox("¿Deseas sobrescribir los datos de hoy?")
 
         if confirmar:
-            borrar_fila_fecha(hoy)
-            guardar_dato(hoy, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq,
+            borrar_fila_fecha(hoy_str)
+            guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq,
                          dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
             st.success("Valores sobrescritos.")
             st.experimental_rerun()
     else:
-        guardar_dato(hoy, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
+        guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
         st.success("Valores guardados.")
         st.experimental_rerun()
 
-
+df = df.replace({None: np.nan})
+df = df.replace({'': np.nan})
 
 # Mostrar gráfico
 if not df.empty:
