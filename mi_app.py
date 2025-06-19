@@ -102,12 +102,12 @@ if st.session_state.guardar_click:
             guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
             st.success("Valores sobrescritos.")
             st.session_state.guardar_click = False
-            st.experimental_rerun()
+            st.rerun()
     else:
         guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
         st.success("Valores guardados.")
         st.session_state.guardar_click = False
-        st.experimental_rerun()
+        st.rerun()
 
 df = df.replace({None: np.nan})
 df = df.replace({'': np.nan})
