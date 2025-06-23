@@ -1,0 +1,10 @@
+credentials:
+  usernames:
+    juan:
+      email: iraitzazka@gmail.com
+      name: Iraitz Azcarate
+      password: '123456'  
+cookie:
+  name: my_cookie
+  key: my_key
+  expiry_days: 30

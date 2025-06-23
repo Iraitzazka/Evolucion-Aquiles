@@ -1,3 +1,6 @@
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,11 +9,81 @@ import gspread
 from google.oauth2.service_account import Credentials
 import numpy as np
 
+##################### Login y autenticación #####################
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+CONFIG_FILE = 'config.yaml'
+
+# Cargar archivo de configuración
+def load_config():
+    with open(CONFIG_FILE) as file:
+        return yaml.load(file, Loader=SafeLoader)
+
+# Guardar cambios en archivo de configuración
+def save_config(config):
+    with open(CONFIG_FILE, 'w') as file:
+        yaml.dump(config, file, default_flow_style=False)
+
+# Inicializar autenticador
+def get_authenticator(config):
+    return stauth.Authenticate(
+        config['credentials'],
+        config['cookie']['name'],
+        config['cookie']['key'],
+        config['cookie']['expiry_days']
+    )
+
+config = load_config()
+authenticator = get_authenticator(config)
+
+
 # Obtener el día actual
 hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
+
+menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Cerrar sesión"])
+
+if menu == "Iniciar sesión":
+    login = authenticator.login(location="main")
+    if login:
+        name, authentication_status, username = authenticator.authenticate()
+    else:
+        name, authentication_status, username = None, None, None
+    if authentication_status:
+        st.success(f"Bienvenido/a {name}")
+        # Aquí puedes poner el contenido de tu app principal
+        st.write("Contenido privado para usuarios registrados.")
+    elif authentication_status is False:
+        st.error("Usuario o contraseña incorrectos")
+    elif authentication_status is None:
+        st.warning("Por favor, introduce tus credenciales")
+
+elif menu == "Registrarse":
+    email = st.text_input("Correo")
+    username = st.text_input("Usuario")
+    name = st.text_input("Nombre completo")
+    password = st.text_input("Contraseña", type="password")
+
+    if st.button("Registrarse"):
+        if email and username and name and password:
+            try:
+                authenticator.register_user(name, username, email, password, preauthorization=False)
+                st.success("Usuario registrado correctamente. Ya puedes iniciar sesión.")
+                save_config(config)
+            except Exception as e:
+                st.error(f"Error: {e}")
+        else:
+            st.warning("Completa todos los campos")
+
+elif menu == "Cerrar sesión":
+    authenticator.logout("Cerrar sesión", "sidebar")
+    st.success("Sesión cerrada")
+
+
+###########################################################################
 
 # Inicializa el estado si no está presente
 if "guardar_click" not in st.session_state:
