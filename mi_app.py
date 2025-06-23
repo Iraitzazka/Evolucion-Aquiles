@@ -44,14 +44,17 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
-menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Cerrar sesión"])
+menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
 
 if menu == "Iniciar sesión":
     login = authenticator.login(location="main")
+    st.success(f"1/a {login}")
     if login:
         name, authentication_status, username = authenticator.authenticate()
+        st.success(f"2/a {login}")
     else:
         name, authentication_status, username = None, None, None
+        st.success(f"3/a {login}")
     if authentication_status:
         st.success(f"Bienvenido/a {name}")
         # Aquí puedes poner el contenido de tu app principal
@@ -77,10 +80,6 @@ elif menu == "Registrarse":
                 st.error(f"Error: {e}")
         else:
             st.warning("Completa todos los campos")
-
-elif menu == "Cerrar sesión":
-    authenticator.logout("Cerrar sesión", "sidebar")
-    st.success("Sesión cerrada")
 
 
 ###########################################################################
@@ -181,9 +180,8 @@ if st.session_state.guardar_click:
         st.success("Valores guardados.")
         st.session_state.guardar_click = False
         st.rerun()
-
-df = df.replace({None: np.nan})
-df = df.replace({'': np.nan})
+        
+df.replace([None, ''], np.nan, inplace=True)
 
 # Mostrar gráfico
 if not df.empty:
