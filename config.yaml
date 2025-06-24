@@ -8,3 +8,17 @@ cookie:
   name: my_cookie
   key: my_key
   expiry_days: 30
+
+cookie:
+  expiry_days: 30
+  key: my_key
+  name: my_cookie
+credentials:
+  usernames:
+    iraitz:
+      email: iraitzazka@gmail.com
+      failed_login_attempts: 0 
+      first_name: Iraitz
+      last_name: Azcarate
+      logged_in: False 
+      password: 1e1e1e1e 

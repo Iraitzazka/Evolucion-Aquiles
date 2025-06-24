@@ -9,11 +9,18 @@ import gspread
 from google.oauth2.service_account import Credentials
 import numpy as np
 
+# Configuración de pandas para evitar downcasting silencioso. Evito warnings
+pd.set_option('future.no_silent_downcasting', True)
+CONFIG_FILE = 'config.yaml'
+
 ##################### Login y autenticación #####################
-with open('config.yaml') as file:
+with open(CONFIG_FILE) as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-CONFIG_FILE = 'config.yaml'
+# Pre-hashing all plain text passwords once
+stauth.Hasher.hash_passwords(config['credentials'])
+
+
 
 # Cargar archivo de configuración
 def load_config():
@@ -47,22 +54,18 @@ st.title("Evolucion Aquiles")
 menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
 
 if menu == "Iniciar sesión":
-    login = authenticator.login(location="main")
-    st.success(f"1/a {login}")
-    if login:
-        name, authentication_status, username = authenticator.authenticate()
-        st.success(f"2/a {login}")
-    else:
-        name, authentication_status, username = None, None, None
-        st.success(f"3/a {login}")
-    if authentication_status:
-        st.success(f"Bienvenido/a {name}")
-        # Aquí puedes poner el contenido de tu app principal
-        st.write("Contenido privado para usuarios registrados.")
-    elif authentication_status is False:
-        st.error("Usuario o contraseña incorrectos")
-    elif authentication_status is None:
-        st.warning("Por favor, introduce tus credenciales")
+    try:
+        authenticator.login()
+    except Exception as e:
+        st.error(e)
+    if st.session_state.get('authentication_status'):
+        authenticator.logout()
+        st.write(f'Welcome *{st.session_state.get("name")}*')
+        st.title('Some content')
+    elif st.session_state.get('authentication_status') is False:
+        st.error('Username/password is incorrect')
+    elif st.session_state.get('authentication_status') is None:
+        st.warning('Please enter your username and password')
 
 elif menu == "Registrarse":
     email = st.text_input("Correo")
@@ -180,7 +183,7 @@ if st.session_state.guardar_click:
         st.success("Valores guardados.")
         st.session_state.guardar_click = False
         st.rerun()
-        
+
 df.replace([None, ''], np.nan, inplace=True)
 
 # Mostrar gráfico
