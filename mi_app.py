@@ -56,6 +56,7 @@ menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
 if menu == "Iniciar sesión":
     try:
         authenticator.login()
+        st.warning(f'1 =  {st.session_state.get('authentication_status')}')
     except Exception as e:
         st.error(e)
     if st.session_state.get('authentication_status'):
@@ -76,7 +77,7 @@ elif menu == "Registrarse":
     if st.button("Registrarse"):
         if email and username and name and password:
             try:
-                authenticator.register_user(name, username, email, password, preauthorization=False)
+                authenticator.register_user(name, username, email, password)
                 st.success("Usuario registrado correctamente. Ya puedes iniciar sesión.")
                 save_config(config)
             except Exception as e:

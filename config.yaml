@@ -6,8 +6,5 @@ credentials:
   usernames:
     iraitz:
       email: iraitzazka@gmail.com
-      failed_login_attempts: 0 
-      first_name: Iraitz
-      last_name: Azcarate
-      logged_in: False 
+      name: Iraitz
       password: $2b$12$ggRg9KN9P4K6yLFKaEtqUe3Q9B4D7P9iMvDp4B9KJvWcBXog6iq5K
