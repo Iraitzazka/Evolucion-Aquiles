@@ -192,7 +192,8 @@ if not df.empty:
     fig, ax = plt.subplots(figsize=(10, 6))
 
     ax.plot(df["fecha"], df["dolor_mañanero"], marker='o', linestyle='-', label='Dolor Mañanero')
-
+    
+    df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]] = df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]].apply(pd.to_numeric, errors='coerce')
     df_interpolado = df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]].interpolate()
     ax.plot(df["fecha"], df_interpolado["dolor_DL"], marker=None, linestyle='-', color='red', label='Saltos DL')
     ax.plot(df["fecha"], df_interpolado["dolor_SL_izq"], marker=None, linestyle='-', color='green', label='Saltos SL izq')
