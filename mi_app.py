@@ -18,7 +18,7 @@ with open(CONFIG_FILE) as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # Pre-hashing all plain text passwords once
-stauth.Hasher.hash_passwords(config['credentials'])
+config['credentials'] = stauth.Hasher.hash_passwords(config['credentials'])
 
 
 
