@@ -67,7 +67,7 @@ def load_config():
         config["credentials"]["usernames"][username] = {
             "email": user["email"],
             "name": user["name"],
-            "password": user["password_hash"]  
+            "password": user["password"]  
         }
 
     return config
