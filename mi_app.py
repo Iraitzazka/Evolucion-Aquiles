@@ -53,23 +53,27 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 #Función para leer datos de la tabla
 def obtener_datos(correo):
     response = supabase.table("aquiles").select("*").eq("user", correo).execute()
-    if response.status_code != 200:
-        st.error(f"Error cargando datos: {response.json()}")
+     # Intentamos acceder a error de forma segura
+    error = getattr(response, "error", None)
+    if error:
+        st.error(f"Error cargando datos: {error.message}")
         return pd.DataFrame()
     else:
         return pd.DataFrame(response.data)
 
 def insertar_datos(fila_dict):
     response = supabase.table("aquiles").insert(fila_dict).execute()
-    if response.status_code != 200:
-        st.error(f"Error al insertar: {response.json()}")
+    error = getattr(response, "error", None)
+    if error:
+        st.error(f"Error cargando datos.")
     else:
         st.success("Datos guardados correctamente.")
 
 def eliminar_fila(id_fila):
     response = supabase.table("aquiles").delete().eq("id", id_fila).execute()
-    if response.status_code != 200:
-        st.error(f"Error al eliminar: {response.json()}")
+    error = getattr(response, "error", None)
+    if error:
+        st.error(f"Error al eliminar")
     else:
         st.success("Fila eliminada correctamente.")
 
