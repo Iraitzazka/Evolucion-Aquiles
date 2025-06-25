@@ -90,8 +90,6 @@ def get_authenticator(config):
         )
 
 config = load_config()
-# Pre-hashing all plain text passwords once
-config['credentials'] = stauth.Hasher.hash_passwords(config['credentials'])
 authenticator = get_authenticator(config)
 
 ###########################################################################
