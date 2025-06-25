@@ -153,7 +153,7 @@ if menu == "Iniciar sesión":
                     if st.session_state.confirmar_overwrite:
                         id_fila = df.loc[df["fecha"].dt.date == datetime.now().date(), "id"].values[0]
                         eliminar_fila(id_fila)
-                        insertar_datos({'user': supabase.auth.get_user().user.email, 
+                        insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
                                         'dolor_mañanaero':dolor_mañanero_hoy, 
                                         'dolor_dl':dolor_DL, 
@@ -165,7 +165,7 @@ if menu == "Iniciar sesión":
                         st.session_state.guardar_click = False
                         st.rerun()
                 else:
-                    insertar_datos({'user': supabase.auth.get_user().user.email, 
+                    insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
                                         'dolor_mañanaero':dolor_mañanero_hoy, 
                                         'dolor_dl':dolor_DL, 
