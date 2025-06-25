@@ -102,7 +102,7 @@ if menu == "Iniciar sesión":
             st.session_state.confirmar_overwrite = False
 
         user = supabase.auth.get_user()
-
+        st.write(f'Welcome *{user}*')
         if user:
 
             correo = user.user.email
