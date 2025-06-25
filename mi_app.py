@@ -14,37 +14,6 @@ import numpy as np
 pd.set_option('future.no_silent_downcasting', True)
 CONFIG_FILE = 'config.yaml'
 
-##################### Login y autenticación #####################
-with open(CONFIG_FILE) as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-# Pre-hashing all plain text passwords once
-config['credentials'] = stauth.Hasher.hash_passwords(config['credentials'])
-
-# Cargar archivo de configuración
-def load_config():
-    with open(CONFIG_FILE) as file:
-        return yaml.load(file, Loader=SafeLoader)
-
-# Guardar cambios en archivo de configuración
-def save_config(config):
-    with open(CONFIG_FILE, 'w') as file:
-        yaml.dump(config, file, default_flow_style=False)
-
-# Inicializar autenticador
-def get_authenticator(config):
-    return stauth.Authenticate(
-        config['credentials'],
-        config['cookie']['name'],
-        config['cookie']['key'],
-        config['cookie']['expiry_days']
-    )
-
-config = load_config()
-authenticator = get_authenticator(config)
-
-###########################################################################
-
 ##################### Conexion a BD #####################
 SUPABASE_URL = "https://lrlruhxjhqcszslbywxr.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybHJ1aHhqaHFjc3pzbGJ5d3hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MzM1OTUsImV4cCI6MjA2NjQwOTU5NX0.mtjyLTjXwUmxoMVWttfZ2ugd0Zbaw7sQcBBYc2XdpLI"
@@ -79,6 +48,56 @@ def eliminar_fila(id_fila):
 
 ###########################################################################
 
+##################### Login y autenticación #####################
+with open(CONFIG_FILE) as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+
+
+# Cargar archivo de configuración
+def load_config():
+    # Obtener todos los usuarios
+    response = supabase.table("users").select("*").execute()
+    users = response.data
+
+    # Construir config
+    config = {"credentials": {"usernames": {}}}
+    for user in users:
+        username = user["username"]
+        config["credentials"]["usernames"][username] = {
+            "email": user["email"],
+            "name": user["name"],
+            "password": user["password_hash"]  
+        }
+
+    return config
+# def load_config():
+#     with open(CONFIG_FILE) as file:
+#         return yaml.load(file, Loader=SafeLoader)
+
+# Guardar cambios en archivo de configuración
+def save_config(config):
+    with open(CONFIG_FILE, 'w') as file:
+        yaml.dump(config, file, default_flow_style=False)
+
+# Inicializar autenticador
+def get_authenticator(config):
+    return stauth.Authenticate(
+        config['credentials'],
+        "auth_cookie_name",
+        "auth_signature_key",
+        cookie_expiry_days=30
+        )
+
+config = load_config()
+# Pre-hashing all plain text passwords once
+config['credentials'] = stauth.Hasher.hash_passwords(config['credentials'])
+authenticator = get_authenticator(config)
+
+###########################################################################
+
+
+
 ##################### APP #####################
 
 # Obtener el día actual
@@ -105,7 +124,6 @@ if menu == "Iniciar sesión":
             st.session_state.confirmar_overwrite = False
 
         user = st.session_state.get("username")
-        st.write(f'Welcome *{user}*')
         if user:
 
             correo = config['credentials']['usernames'][user]['email']
