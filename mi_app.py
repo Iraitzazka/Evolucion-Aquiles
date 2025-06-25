@@ -258,9 +258,27 @@ elif menu == "Registrarse":
         email_of_registered_user, \
         username_of_registered_user, \
         name_of_registered_user = authenticator.register_user()
+
         if email_of_registered_user:
-            st.success('User registered successfully')
+            # Verificamos si ya existe el email
+            response = supabase.table("users").select("email").eq("email", email_of_registered_user).execute()
+
+            if len(response.data) > 0:
+                st.warning("Ese correo ya está registrado.")
+            else:
+                # Hash de la contraseña introducida (ya está en el config temporal)
+                hashed_password = config['credentials']['usernames'][username_of_registered_user]['password']
+
+                # Insertamos el nuevo usuario en la tabla de supabase
+                data = {
+                    "email": email_of_registered_user,
+                    "username": username_of_registered_user,
+                    "name": name_of_registered_user,
+                    "password": hashed_password
+                }
+                insertar_datos(data)
     except Exception as e:
-        st.error(e)
+        st.error(f"Error en el registro: {e}")
+
 
 
