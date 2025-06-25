@@ -101,11 +101,11 @@ if menu == "Iniciar sesión":
         if "confirmar_overwrite" not in st.session_state:
             st.session_state.confirmar_overwrite = False
 
-        user = supabase.auth.get_user()
+        user = st.session_state.get("username")
         st.write(f'Welcome *{user}*')
         if user:
 
-            correo = user.user.email
+            correo = config['credentials']['usernames'][user]['email']
 
             df = obtener_datos(correo)
             df["fecha"] = pd.to_datetime(df["fecha"])
