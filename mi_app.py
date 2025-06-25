@@ -96,8 +96,6 @@ authenticator = get_authenticator(config)
 
 ###########################################################################
 
-
-
 ##################### APP #####################
 
 # Obtener el día actual
@@ -111,6 +109,7 @@ menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
 if menu == "Iniciar sesión":
     try:
         authenticator.login()
+        st.write(f'config *{config['credentials']}*')
     except Exception as e:
         st.error(e)
     if st.session_state.get('authentication_status'):
