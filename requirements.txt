@@ -6,3 +6,4 @@ google-auth
 numpy
 streamlit-authenticator
 pyyaml
+supabase
