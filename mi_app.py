@@ -59,7 +59,7 @@ def load_config():
     # Obtener todos los usuarios
     response = supabase.table("users").select("*").execute()
     users = response.data
-
+    st.write(f'users en load config *{users}*')
     # Construir config
     config = {"credentials": {"usernames": {}}}
     for user in users:
