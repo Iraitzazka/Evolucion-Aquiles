@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import gspread
 from google.oauth2.service_account import Credentials
+from supabase import create_client, Client
 import numpy as np
 
 # Configuración de pandas para evitar downcasting silencioso. Evito warnings
@@ -80,57 +81,84 @@ elif menu == "Registrarse":
 
 ###########################################################################
 
+SUPABASE_URL = "https://lrlruhxjhqcszslbywxr.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybHJ1aHhqaHFjc3pzbGJ5d3hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MzM1OTUsImV4cCI6MjA2NjQwOTU5NX0.mtjyLTjXwUmxoMVWttfZ2ugd0Zbaw7sQcBBYc2XdpLI"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+#Función para leer datos de la tabla
+def obtener_datos():
+    user = supabase.auth.get_user()
+    correo = user.user.email
+    response = supabase.table("aquiles").select("*").eq("user", correo).execute()
+    if response.error:
+        st.error(f"Error cargando datos: {response.error.message}")
+        return pd.DataFrame()
+    else:
+        datos = pd.DataFrame(response.data)
+        return datos
+
+def insertar_datos(fila_dict):
+    response = supabase.table("aquiles").insert(fila_dict).execute()
+    if response.error:
+        st.error(f"Error al insertar: {response.error.message}")
+    else:
+        st.success("Datos guardados correctamente.")
+
+def eliminar_fila(id_fila):
+    response = supabase.table("aquiles").delete().eq("id", id_fila).execute()
+    if response.error:
+        st.error(f"Error al eliminar: {response.error.message}")
+    else:
+        st.success("Fila eliminada correctamente.")
+
 # Inicializa el estado si no está presente
 if "guardar_click" not in st.session_state:
     st.session_state.guardar_click = False
 if "confirmar_overwrite" not in st.session_state:
     st.session_state.confirmar_overwrite = False
 
-# Carga credenciales
-@st.cache_resource
-def get_gsheet_client():
-    scopes = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"], scopes=scopes
-    )
-    client = gspread.authorize(creds)
-    return client
 
-client = get_gsheet_client()
 
-# Abre la hoja por nombre
-sheet = client.open("Evolucion Aquiles").sheet1
+df = obtener_datos()
+df["fecha"] = pd.to_datetime(df["fecha"])
+# # Carga credenciales
+# @st.cache_resource
+# def get_gsheet_client():
+#     scopes = [
+#         'https://www.googleapis.com/auth/spreadsheets',
+#         'https://www.googleapis.com/auth/drive'
+#     ]
+#     creds = Credentials.from_service_account_info(
+#         st.secrets["gcp_service_account"], scopes=scopes
+#     )
+#     client = gspread.authorize(creds)
+#     return client
 
-# Leer datos de la hoja
-def leer_datos():
-    records = sheet.get_all_records()
-    return pd.DataFrame(records)
+# client = get_gsheet_client()
 
-# Escribir un nuevo dato
-def guardar_dato(fecha, dolor_mañanero, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, dias_correr, dias_ejercicio_fuerza):
-    # Añade una fila al final (fecha, valor)
-    sheet.append_row([fecha, dolor_mañanero, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, dias_correr, dias_ejercicio_fuerza])
+# # Abre la hoja por nombre
+# sheet = client.open("Evolucion Aquiles").sheet1
 
-def borrar_fila_fecha(fecha_buscada):
-    registros = sheet.get_all_records()
-    for idx, fila in enumerate(registros):
-        if str(fila['fecha']) == fecha_buscada:
-            sheet.delete_rows(idx + 2)  # +2: porque sheet es 1-indexado y la 1ra fila es cabecera
-            break
+# # Leer datos de la hoja
+# def leer_datos():
+#     records = sheet.get_all_records()
+#     return pd.DataFrame(records)
+
+# # Escribir un nuevo dato
+# def guardar_dato(fecha, dolor_mañanero, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, dias_correr, dias_ejercicio_fuerza):
+#     # Añade una fila al final (fecha, valor)
+#     sheet.append_row([fecha, dolor_mañanero, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, dias_correr, dias_ejercicio_fuerza])
+
+# def borrar_fila_fecha(fecha_buscada):
+#     registros = sheet.get_all_records()
+#     for idx, fila in enumerate(registros):
+#         if str(fila['fecha']) == fecha_buscada:
+#             sheet.delete_rows(idx + 2)  # +2: porque sheet es 1-indexado y la 1ra fila es cabecera
+#             break
 
 # Función para manejar el click
 def guardar_click_callback():
     st.session_state.guardar_click = True
-
-# Cargar datos
-try:
-    df = leer_datos()
-    df["fecha"] = pd.to_datetime(df["fecha"])
-except Exception:
-    df = pd.DataFrame(columns=["fecha", "dolor_mañanero", "dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento", "dias_correr", "dias_ejercicio_fuerza"])
 
 # Input: Dolor Mañanero
 dolor_mañanero_hoy = st.number_input("Introduce dolor mañanero de hoy", step=1.0, format="%.2f")
@@ -166,13 +194,28 @@ if st.session_state.guardar_click:
         st.session_state.confirmar_overwrite = st.checkbox("¿Deseas sobrescribir los datos de hoy?", value=st.session_state.confirmar_overwrite)
 
         if st.session_state.confirmar_overwrite:
-            borrar_fila_fecha(hoy_str)
-            guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
+            id_fila = df.loc[df["fecha"].dt.date == datetime.now().date(), "id"].values[0]
+            eliminar_fila(id_fila)
+            insertar_datos({'user': supabase.auth.get_user().user.email, 
+                            'fecha':hoy_str, 
+                            'dolor_mañanaero':dolor_mañanero_hoy, 
+                            'dolor_dl':dolor_DL, 
+                            'dolor_sl_izq':dolor_SL_izq, 
+                            'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
+                            'correr_hoy':correr_hoy, 
+                            'fuerza_hoy':fuerza_hoy})
             st.success("Valores sobrescritos.")
             st.session_state.guardar_click = False
             st.rerun()
     else:
-        guardar_dato(hoy_str, dolor_mañanero_hoy, dolor_DL, dolor_SL_izq, dolor_SL_desplazamiento, correr_hoy, fuerza_hoy)
+        insertar_datos({'user': supabase.auth.get_user().user.email, 
+                            'fecha':hoy_str, 
+                            'dolor_mañanaero':dolor_mañanero_hoy, 
+                            'dolor_dl':dolor_DL, 
+                            'dolor_sl_izq':dolor_SL_izq, 
+                            'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
+                            'correr_hoy':correr_hoy, 
+                            'fuerza_hoy':fuerza_hoy})
         st.success("Valores guardados.")
         st.session_state.guardar_click = False
         st.rerun()
