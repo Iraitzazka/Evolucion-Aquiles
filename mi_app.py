@@ -186,11 +186,11 @@ if menu == "Iniciar sesión":
 
                 ax.plot(df["fecha"], df["dolor_mañanero"], marker='o', linestyle='-', label='Dolor Mañanero')
                 
-                df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]] = df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]].apply(pd.to_numeric, errors='coerce')
-                df_interpolado = df[["dolor_DL", "dolor_SL_izq", "dolor_SL_desplazamiento"]].interpolate()
-                ax.plot(df["fecha"], df_interpolado["dolor_DL"], marker=None, linestyle='-', color='red', label='Saltos DL')
-                ax.plot(df["fecha"], df_interpolado["dolor_SL_izq"], marker=None, linestyle='-', color='green', label='Saltos SL izq')
-                ax.plot(df["fecha"], df_interpolado["dolor_SL_desplazamiento"], marker=None, linestyle='-', color='yellow', label='Saltos desplazamiento')
+                df[["dolor_dl", "dolor_sl_izq", "dolor_sl_desplazamiento"]] = df[["dolor_dl", "dolor_sl_izq", "dolor_sl_desplazamiento"]].apply(pd.to_numeric, errors='coerce')
+                df_interpolado = df[["dolor_dl", "dolor_sl_izq", "dolor_sl_desplazamiento"]].interpolate()
+                ax.plot(df["fecha"], df_interpolado["dolor_dl"], marker=None, linestyle='-', color='red', label='Saltos DL')
+                ax.plot(df["fecha"], df_interpolado["dolor_sl_izq"], marker=None, linestyle='-', color='green', label='Saltos Sl izq')
+                ax.plot(df["fecha"], df_interpolado["dolor_sl_desplazamiento"], marker=None, linestyle='-', color='yellow', label='Saltos desplazamiento')
 
                 ax.axvspan(pd.Timestamp('2025-05-31'), pd.Timestamp('2025-06-08'), color='purple', alpha=0.15, label='Periodo inactivo')
 
