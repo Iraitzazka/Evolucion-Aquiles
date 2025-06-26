@@ -101,7 +101,7 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
-menu = st.sidebar.radio("Opciones", ["Inicio", "Iniciar sesión", "Registrarse"])
+menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
 
 if menu == "Iniciar sesión":
     try:
@@ -111,12 +111,6 @@ if menu == "Iniciar sesión":
     if st.session_state.get('authentication_status'):
         authenticator.logout()
         st.write(f'Welcome *{st.session_state.get("name")}*')
-        
-        # Inicializa el estado si no está presente
-        if "guardar_click" not in st.session_state:
-            st.session_state.guardar_click = False
-        if "confirmar_overwrite" not in st.session_state:
-            st.session_state.confirmar_overwrite = False
 
         st.session_state["menu"] = "Inicio"
         st.rerun()  
@@ -183,6 +177,12 @@ elif menu == "Inicio":
             def guardar_click_callback():
                 st.session_state.guardar_click = True
 
+            # Inicializa el estado si no está presente
+            if "guardar_click" not in st.session_state:
+                st.session_state.guardar_click = False
+            if "confirmar_overwrite" not in st.session_state:
+                st.session_state.confirmar_overwrite = False
+                
             # Input: Dolor Mañanero
             dolor_mañanero_hoy = st.number_input("Introduce dolor mañanero de hoy", step=1.0, format="%.2f")
 
