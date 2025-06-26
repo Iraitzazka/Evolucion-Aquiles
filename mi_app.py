@@ -28,7 +28,7 @@ def obtener_datos(correo):
         st.error(f"Error cargando datos: {error.message}")
         return pd.DataFrame()
     else:
-        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanaero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'correr_hoy','fuerza_hoy'])
+        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanaero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'dias_correr','dias_ejercicio_fuerza'])
 
 def insertar_datos(fila_dict, table):
     response = supabase.table(table).insert(fila_dict).execute()
@@ -175,8 +175,8 @@ if menu == "Iniciar sesión":
                                         'dolor_dl':dolor_DL, 
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
-                                        'correr_hoy':correr_hoy, 
-                                        'fuerza_hoy':fuerza_hoy},
+                                        'dias_correr':correr_hoy, 
+                                        'dias_ejercicio_fuerza':fuerza_hoy},
                                         "aquiles")
                         st.success("Valores sobrescritos.")
                         st.session_state.guardar_click = False
@@ -188,8 +188,8 @@ if menu == "Iniciar sesión":
                                         'dolor_dl':dolor_DL, 
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
-                                        'correr_hoy':correr_hoy, 
-                                        'fuerza_hoy':fuerza_hoy},
+                                        'dias_correr':correr_hoy, 
+                                        'dias_ejercicio_fuerza':fuerza_hoy},
                                         "aquiles")
                     st.success("Valores guardados.")
                     st.session_state.guardar_click = False
