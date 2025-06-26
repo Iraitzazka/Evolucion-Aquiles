@@ -111,6 +111,7 @@ st.warning(f"despues del menu_radio {st.session_state.get('menu', 'No existe'), 
 st.warning(f"Menu radio {menu_radio}")
 # Solo actualizamos si hay cambio real
 if menu_radio != st.session_state["menu"]:
+    st.text(f"menu_radio != st.session_state['menu'] = {menu_radio, st.session_state["menu"]}")
     st.session_state["menu"] = menu_radio
     st.rerun()
 
