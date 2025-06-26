@@ -28,9 +28,7 @@ def obtener_datos(correo):
         st.error(f"Error cargando datos: {error.message}")
         return pd.DataFrame()
     else:
-        st.error(f"obtener_datos, response.data: {response.data}")
-        st.error(f"Columnas: {pd.DataFrame(response.data).columns}")
-        return pd.DataFrame(response.data)
+        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanaero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'correr_hoy','fuerza_hoy'])
 
 def insertar_datos(fila_dict, table):
     response = supabase.table(table).insert(fila_dict).execute()
@@ -128,6 +126,7 @@ if menu == "Iniciar sesión":
             correo = config['credentials']['usernames'][user]['email']
 
             df = obtener_datos(correo)
+            st.warning("dataframe columns and shape", df.columns, df.shape)
             df["fecha"] = pd.to_datetime(df["fecha"])
 
             # Función para manejar el click
