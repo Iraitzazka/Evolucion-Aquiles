@@ -59,7 +59,6 @@ def load_config():
     # Obtener todos los usuarios
     response = supabase.table("users").select("*").execute()
     users = response.data
-    st.write(f'users en load config *{users}*')
     # Construir config
     config = {"credentials": {"usernames": {}}}
     for user in users:
@@ -107,7 +106,6 @@ menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
 if menu == "Iniciar sesión":
     try:
         authenticator.login()
-        st.write(f'config *{config['credentials']}*')
     except Exception as e:
         st.error(e)
     if st.session_state.get('authentication_status'):
@@ -169,12 +167,15 @@ if menu == "Iniciar sesión":
                     if st.session_state.confirmar_overwrite:
                         id_fila = df.loc[df["fecha"].dt.date == datetime.now().date(), "id"].values[0]
                         eliminar_fila(id_fila)
+                        dolor_DL = dolor_DL if int(dolor_DL) is not None else None
+                        dolor_SL_izq = dolor_SL_izq if int(dolor_SL_izq) is not None else None
+                        dolor_SL_desplazamiento = dolor_SL_desplazamiento if int(dolor_SL_desplazamiento) is not None else None
                         insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
                                         'dolor_mañanero':int(dolor_mañanero_hoy), 
-                                        'dolor_dl':int(dolor_DL), 
-                                        'dolor_sl_izq':int(dolor_SL_izq), 
-                                        'dolor_sl_desplazamiento':int(dolor_SL_desplazamiento), 
+                                        'dolor_dl':dolor_DL, 
+                                        'dolor_sl_izq':dolor_SL_izq, 
+                                        'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
                                         'dias_correr':int(correr_hoy), 
                                         'dias_ejercicio_fuerza':int(fuerza_hoy)},
                                         "aquiles")
@@ -182,15 +183,18 @@ if menu == "Iniciar sesión":
                         st.session_state.guardar_click = False
                         st.rerun()
                 else:
+                    dolor_DL = dolor_DL if int(dolor_DL) is not None else None
+                    dolor_SL_izq = dolor_SL_izq if int(dolor_SL_izq) is not None else None
+                    dolor_SL_desplazamiento = dolor_SL_desplazamiento if int(dolor_SL_desplazamiento) is not None else None
                     insertar_datos({'user': correo, 
-                                        'fecha':hoy_str, 
-                                        'dolor_mañanero':int(dolor_mañanero_hoy), 
-                                        'dolor_dl':int(dolor_DL), 
-                                        'dolor_sl_izq':int(dolor_SL_izq), 
-                                        'dolor_sl_desplazamiento':int(dolor_SL_desplazamiento), 
-                                        'dias_correr':int(correr_hoy), 
-                                        'dias_ejercicio_fuerza':int(fuerza_hoy)},
-                                        "aquiles")
+                                    'fecha':hoy_str, 
+                                    'dolor_mañanero':int(dolor_mañanero_hoy), 
+                                    'dolor_dl':dolor_DL, 
+                                    'dolor_sl_izq':dolor_SL_izq, 
+                                    'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
+                                    'dias_correr':int(correr_hoy), 
+                                    'dias_ejercicio_fuerza':int(fuerza_hoy)},
+                                    "aquiles")
                     st.success("Valores guardados.")
                     st.session_state.guardar_click = False
                     st.rerun()
@@ -258,7 +262,6 @@ elif menu == "Registrarse":
         email_of_registered_user, \
         username_of_registered_user, \
         name_of_registered_user = authenticator.register_user()
-        st.write("Debug:", email_of_registered_user, username_of_registered_user, name_of_registered_user)
 
         if email_of_registered_user:
             # Verificamos si ya existe el email
