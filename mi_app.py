@@ -28,6 +28,8 @@ def obtener_datos(correo):
         st.error(f"Error cargando datos: {error.message}")
         return pd.DataFrame()
     else:
+        st.error(f"obtener_datos, response.data: {response.data}")
+        st.error(f"Columnas: {pd.DataFrame(response.data).columns}")
         return pd.DataFrame(response.data)
 
 def insertar_datos(fila_dict, table):
