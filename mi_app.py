@@ -255,6 +255,7 @@ elif menu == "Registrarse":
         email_of_registered_user, \
         username_of_registered_user, \
         name_of_registered_user = authenticator.register_user()
+        st.write("Debug:", email_of_registered_user, username_of_registered_user, name_of_registered_user)
 
         if email_of_registered_user:
             # Verificamos si ya existe el email
