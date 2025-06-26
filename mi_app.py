@@ -101,7 +101,7 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
-menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse"])
+menu = st.sidebar.radio("Opciones", ["Inicio", "Iniciar sesión", "Registrarse"])
 
 if menu == "Iniciar sesión":
     try:
@@ -117,6 +117,59 @@ if menu == "Iniciar sesión":
             st.session_state.guardar_click = False
         if "confirmar_overwrite" not in st.session_state:
             st.session_state.confirmar_overwrite = False
+
+        st.session_state["menu"] = "Inicio"
+        st.rerun()  
+    elif st.session_state.get('authentication_status') is False:
+        st.error('Username/password is incorrect')
+    elif st.session_state.get('authentication_status') is None:
+        st.warning('Please enter your username and password')
+
+elif menu == "Registrarse":
+    if st.session_state.get('authentication_status'):
+        st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
+        st.session_state["menu"] = "Inicio"
+        st.rerun()
+    else:
+        try:
+            email_of_registered_user, \
+            username_of_registered_user, \
+            name_of_registered_user = authenticator.register_user()
+
+            if email_of_registered_user:
+                # Verificamos si ya existe el email
+                response = supabase.table("users").select("email").eq("email", email_of_registered_user).execute()
+
+                if len(response.data) > 0:
+                    st.warning("Ese correo ya está registrado.")
+                else:
+                    # Hash de la contraseña introducida (ya está en el config temporal)
+                    hashed_password = config['credentials']['usernames'][username_of_registered_user]['password']
+
+                    # Insertamos el nuevo usuario en la tabla de supabase
+                    insertar_datos({
+                        "username": username_of_registered_user,
+                        "name": name_of_registered_user,
+                        "email": email_of_registered_user,
+                        "password": hashed_password}, 
+                        "users")
+                    st.success("Usuario registrado correctamente. Iniciando sesión...")
+
+                    # Guardar el usuario como autenticado directamente
+                    st.session_state["authentication_status"] = True
+                    st.session_state["username"] = username_of_registered_user
+                    st.session_state["name"] = name_of_registered_user
+                    st.session_state["email"] = email_of_registered_user
+
+                    st.session_state["menu"] = "Inicio" 
+
+                    st.rerun()  # Recarga la app como si el usuario hubiese iniciado sesión
+
+        except Exception as e:
+            st.error(f"Error en el registro: {e}")
+
+elif menu == "Inicio":
+    if st.session_state.get('authentication_status'):
 
         user = st.session_state.get("username")
         if user:
@@ -250,46 +303,7 @@ if menu == "Iniciar sesión":
             else:
                 st.info("No hay datos aún.")
 
-    elif st.session_state.get('authentication_status') is False:
-        st.error('Username/password is incorrect')
-    elif st.session_state.get('authentication_status') is None:
-        st.warning('Please enter your username and password')
-
-elif menu == "Registrarse":
-    try:
-        email_of_registered_user, \
-        username_of_registered_user, \
-        name_of_registered_user = authenticator.register_user()
-
-        if email_of_registered_user:
-            # Verificamos si ya existe el email
-            response = supabase.table("users").select("email").eq("email", email_of_registered_user).execute()
-
-            if len(response.data) > 0:
-                st.warning("Ese correo ya está registrado.")
-            else:
-                # Hash de la contraseña introducida (ya está en el config temporal)
-                hashed_password = config['credentials']['usernames'][username_of_registered_user]['password']
-
-                # Insertamos el nuevo usuario en la tabla de supabase
-                insertar_datos({
-                    "username": username_of_registered_user,
-                    "name": name_of_registered_user,
-                    "email": email_of_registered_user,
-                    "password": hashed_password}, 
-                    "users")
-                st.success("Usuario registrado correctamente. Iniciando sesión...")
-
-                # Guardar el usuario como autenticado directamente
-                st.session_state["authentication_status"] = True
-                st.session_state["username"] = username_of_registered_user
-                st.session_state["name"] = name_of_registered_user
-                st.session_state["email"] = email_of_registered_user
-
-                st.rerun()  # Recarga la app como si el usuario hubiese iniciado sesión
-                
-    except Exception as e:
-        st.error(f"Error en el registro: {e}")
-
-
-
+    else:
+        st.warning("Por favor, inicia sesión para acceder a la aplicación.")
+        st.session_state["menu"] = "Iniciar sesión"
+        st.rerun()
