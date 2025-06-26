@@ -101,13 +101,30 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
-st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], key="menu")
+if st.session_state.get("go_to_inicio"):
+    st.session_state["menu"] = "Inicio"
+    st.session_state["go_to_inicio"] = False
+    st.experimental_rerun()
+
+# Control de redirección antes del radio
+if st.session_state.get("go_to_login"):
+    st.session_state["menu"] = "Iniciar sesión"
+    st.session_state["go_to_login"] = False
+    st.experimental_rerun()
+
+menu_radio  = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
+
+if "menu" not in st.session_state:
+    st.session_state["menu"] = menu_radio 
+else:
+    if st.session_state["menu"] != menu_radio:
+        st.session_state["menu"] = menu_radio
 
 if st.session_state["menu"] == "Iniciar sesión":
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
-        st.session_state["menu"] = "Inicio"
-        st.rerun()
+        st.session_state["go_to_inicio"] = True
+        st.experimental_rerun()
     else:
         try:
             authenticator.login()
@@ -116,9 +133,8 @@ if st.session_state["menu"] == "Iniciar sesión":
         if st.session_state.get('authentication_status'):
             authenticator.logout()
             st.write(f'Welcome *{st.session_state.get("name")}*')
-
-            st.session_state["menu"] = "Inicio"
-            st.rerun()  
+            st.session_state["go_to_inicio"] = True
+            st.experimental_rerun()
         elif st.session_state.get('authentication_status') is False:
             st.error('Username/password is incorrect')
         elif st.session_state.get('authentication_status') is None:
@@ -127,8 +143,8 @@ if st.session_state["menu"] == "Iniciar sesión":
 elif st.session_state["menu"] == "Registrarse":
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
-        st.session_state["menu"] = "Inicio"
-        st.rerun()
+        st.session_state["go_to_inicio"] = True
+        st.experimental_rerun()
     else:
         try:
             email_of_registered_user, \
@@ -160,9 +176,8 @@ elif st.session_state["menu"] == "Registrarse":
                     st.session_state["name"] = name_of_registered_user
                     st.session_state["email"] = email_of_registered_user
 
-                    st.session_state["menu"] = "Inicio" 
-
-                    st.rerun()  # Recarga la app como si el usuario hubiese iniciado sesión
+                    st.session_state["go_to_inicio"] = True
+                    st.experimental_rerun() 
 
         except Exception as e:
             st.error(f"Error en el registro: {e}")
@@ -310,5 +325,5 @@ elif st.session_state["menu"] == "Inicio":
 
     else:
         st.warning("Por favor, inicia sesión para acceder a la aplicación.")
-        st.session_state["menu"] = "Iniciar sesión"
-        st.rerun()
+        st.session_state["go_to_login"] = True
+        st.experimental_rerun()
