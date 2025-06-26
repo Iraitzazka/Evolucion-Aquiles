@@ -1,96 +1,37 @@
 import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-import gspread
-from google.oauth2.service_account import Credentials
 from supabase import create_client, Client
 import numpy as np
+from funciones import *
 
 # Configuración de pandas para evitar downcasting silencioso. Evito warnings
 pd.set_option('future.no_silent_downcasting', True)
 
-##################### Conexion a BD #####################
+# Conexion a BD 
 SUPABASE_URL = "https://lrlruhxjhqcszslbywxr.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxybHJ1aHhqaHFjc3pzbGJ5d3hyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MzM1OTUsImV4cCI6MjA2NjQwOTU5NX0.mtjyLTjXwUmxoMVWttfZ2ugd0Zbaw7sQcBBYc2XdpLI"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-#Función para leer datos de la tabla
-def obtener_datos(correo):
-    response = supabase.table("aquiles").select("*").eq("user", correo).execute()
-     # Intentamos acceder a error de forma segura
-    error = getattr(response, "error", None)
-    if error:
-        st.error(f"Error cargando datos: {error.message}")
-        return pd.DataFrame()
-    else:
-        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'dias_correr','dias_ejercicio_fuerza'])
-
-def insertar_datos(fila_dict, table):
-    response = supabase.table(table).insert(fila_dict).execute()
-    error = getattr(response, "error", None)
-    if error:
-        st.error(f"Error cargando datos.")
-    else:
-        st.success("Datos guardados correctamente.")
-
-def eliminar_fila(id_fila):
-    response = supabase.table("aquiles").delete().eq("id", id_fila).execute()
-    error = getattr(response, "error", None)
-    if error:
-        st.error(f"Error al eliminar")
-    else:
-        st.success("Fila eliminada correctamente.")
-
-###########################################################################
-
-##################### Login y autenticación #####################
-
-# Cargar archivo de configuración
-def load_config():
-    # Obtener todos los usuarios
-    response = supabase.table("users").select("*").execute()
-    users = response.data
-    # Construir config
-    config = {"credentials": {"usernames": {}}}
-    for user in users:
-        username = user["username"]
-        config["credentials"]["usernames"][username] = {
-            "email": user["email"],
-            "name": user["name"],
-            "password": user["password"]  
-        }
-
-    return config
-
-# Inicializar autenticador
-def get_authenticator(config):
-    return stauth.Authenticate(
-        config['credentials'],
-        "auth_cookie_name",
-        "auth_signature_key",
-        cookie_expiry_days=30
-        )
-
-config = load_config()
+# Login y autenticación 
+config = load_config(supabase)
 authenticator = get_authenticator(config)
-###########################################################################
 
-##################### APP #####################
+# APP 
 
 # Obtener el día actual
 hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
+
+#Redirecciones
 if st.session_state.get("go_to_inicio"):
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
 
-# Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
@@ -98,14 +39,16 @@ if st.session_state.get("go_to_login"):
 # Sidebar controlado por session_state
 if "menu" not in st.session_state:
     st.session_state["menu"] = "Iniciar sesión"  # valor por defecto
-
 menu_radio = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], index=["Iniciar sesión", "Registrarse", "Inicio"].index(st.session_state["menu"]))
+
 # Solo actualizamos si hay cambio real
 if menu_radio != st.session_state["menu"]:
     st.session_state["menu"] = menu_radio
     st.rerun()
 
+#Iniciar sesiones
 if st.session_state["menu"] == "Iniciar sesión":
+    #Si ya esta loggeado
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
         st.session_state["go_to_inicio"] = True
@@ -125,10 +68,11 @@ if st.session_state["menu"] == "Iniciar sesión":
         elif st.session_state.get('authentication_status') is None:
             st.warning('Please enter your username and password')
 
+#Registrarse
 elif st.session_state["menu"] == "Registrarse":
+    #Si ya esta loggeado
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Para registrarte con otro usuario, primero cierra sesión.")
-
         # Mostrar botón de logout
         if st.button("Cerrar sesión"):
             authenticator.logout()  # Esto elimina las claves asociadas del session_state
@@ -154,8 +98,8 @@ elif st.session_state["menu"] == "Registrarse":
                     hashed_password = config['credentials']['usernames'][username_of_registered_user]['password']
 
                     # Insertamos el nuevo usuario en la tabla de supabase
-                    insertar_datos({
-                        "username": username_of_registered_user,
+                    insertar_datos(supabase,
+                        {"username": username_of_registered_user,
                         "name": name_of_registered_user,
                         "email": email_of_registered_user,
                         "password": hashed_password}, 
@@ -175,15 +119,15 @@ elif st.session_state["menu"] == "Registrarse":
         except Exception as e:
             st.error(f"Error en el registro: {e}")
 
+#Pagina principal
 elif st.session_state["menu"] == "Inicio":
+    #Si esta loggeado
     if st.session_state.get('authentication_status'):
-
         user = st.session_state.get("username")
         if user:
-
             correo = config['credentials']['usernames'][user]['email']
 
-            df = obtener_datos(correo)
+            df = obtener_datos(supabase, correo)
             df["fecha"] = pd.to_datetime(df["fecha"])
 
             # Función para manejar el click
@@ -231,11 +175,12 @@ elif st.session_state["menu"] == "Inicio":
 
                     if st.session_state.confirmar_overwrite:
                         id_fila = df.loc[df["fecha"].dt.date == datetime.now().date(), "id"].values[0]
-                        eliminar_fila(id_fila)
+                        eliminar_fila(supabase, id_fila)
                         dolor_DL = int(dolor_DL) if dolor_DL is not None else None
                         dolor_SL_izq = int(dolor_SL_izq) if dolor_SL_izq is not None else None
                         dolor_SL_desplazamiento = int(dolor_SL_desplazamiento) if dolor_SL_desplazamiento is not None else None
-                        insertar_datos({'user': correo, 
+                        insertar_datos(supabase,
+                                       {'user': correo, 
                                         'fecha':hoy_str, 
                                         'dolor_mañanero':int(dolor_mañanero_hoy), 
                                         'dolor_dl':dolor_DL, 
@@ -251,7 +196,8 @@ elif st.session_state["menu"] == "Inicio":
                     dolor_DL = int(dolor_DL) if dolor_DL is not None else None
                     dolor_SL_izq = int(dolor_SL_izq) if dolor_SL_izq is not None else None
                     dolor_SL_desplazamiento = int(dolor_SL_desplazamiento) if dolor_SL_desplazamiento is not None else None
-                    insertar_datos({'user': correo, 
+                    insertar_datos(supabase,
+                                   {'user': correo, 
                                 'fecha':hoy_str, 
                                 'dolor_mañanero':int(dolor_mañanero_hoy), 
                                 'dolor_dl':dolor_DL, 
