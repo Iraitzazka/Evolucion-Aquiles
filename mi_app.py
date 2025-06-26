@@ -142,6 +142,7 @@ elif st.session_state["menu"] == "Registrarse":
         if st.button("Cerrar sesión"):
             authenticator.logout()  # Esto elimina las claves asociadas del session_state
             st.session_state["menu"] = "Registrarse"  # Redirigir al registro tras logout
+            st.warning(f"antes de cerrar sesion {st.session_state.get('menu', 'No existe')}")
             st.rerun()
     else:
         try:
