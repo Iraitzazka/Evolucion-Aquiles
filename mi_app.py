@@ -10,7 +10,7 @@ from google.oauth2.service_account import Credentials
 from supabase import create_client, Client
 import numpy as np
 
-st.text(f"st.session_state arriba del todo = {st.session_state.get('menu', 'No existe')}")
+st.text(f"st.session_state arriba del todo = {st.session_state.get('menu', 'No existe'), st.session_state.get('authentication_status')}")
 # Configuración de pandas para evitar downcasting silencioso. Evito warnings
 pd.set_option('future.no_silent_downcasting', True)
 
@@ -78,7 +78,7 @@ def get_authenticator(config):
 
 config = load_config()
 authenticator = get_authenticator(config)
-st.text(f"st.session_state 2 = {st.session_state.get('menu', 'No existe')}")
+st.text(f"st.session_state 2 = {st.session_state.get('menu', 'No existe'), st.session_state.get('authentication_status')}")
 ###########################################################################
 
 ##################### APP #####################
@@ -88,7 +88,7 @@ hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
-st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')}")
+st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe'), st.session_state.get('authentication_status')}")
 if st.session_state.get("go_to_inicio"):
     st.warning(f"estoy inicio del go to inicio {st.session_state.get('menu', 'No existe')}")
     st.session_state["menu"] = "Inicio"
@@ -107,7 +107,7 @@ if "menu" not in st.session_state:
 
 st.warning(f"antes del menu_radio {st.session_state.get('menu', 'No existe')}")
 menu_radio = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], index=["Iniciar sesión", "Registrarse", "Inicio"].index(st.session_state["menu"]))
-st.warning(f"despues del menu_radio {st.session_state.get('menu', 'No existe')}")
+st.warning(f"despues del menu_radio {st.session_state.get('menu', 'No existe'), st.session_state.get('authentication_status')}")
 st.warning(f"Menu radio {menu_radio}")
 # Solo actualizamos si hay cambio real
 if menu_radio != st.session_state["menu"]:
@@ -142,7 +142,7 @@ elif st.session_state["menu"] == "Registrarse":
         if st.button("Cerrar sesión"):
             authenticator.logout()  # Esto elimina las claves asociadas del session_state
             st.session_state["menu"] = "Registrarse"  # Redirigir al registro tras logout
-            st.warning(f"antes de cerrar sesion {st.session_state.get('menu', 'No existe')}")
+            st.warning(f"antes de cerrar sesion {st.session_state.get('menu', 'No existe'), st.session_state.get('authentication_status')}")
             st.rerun()
     else:
         try:
