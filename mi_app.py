@@ -104,13 +104,13 @@ st.title("Evolucion Aquiles")
 if st.session_state.get("go_to_inicio"):
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
-    st.st.rerun()()
+    st.rerun()
 
 # Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
-    st.st.rerun()()
+    st.rerun()
 
 menu_radio  = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
 
@@ -124,7 +124,7 @@ if st.session_state["menu"] == "Iniciar sesión":
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
         st.session_state["go_to_inicio"] = True
-        st.st.rerun()()
+        st.rerun()
     else:
         try:
             authenticator.login()
@@ -134,7 +134,7 @@ if st.session_state["menu"] == "Iniciar sesión":
             authenticator.logout()
             st.write(f'Welcome *{st.session_state.get("name")}*')
             st.session_state["go_to_inicio"] = True
-            st.st.rerun()()
+            st.rerun()
         elif st.session_state.get('authentication_status') is False:
             st.error('Username/password is incorrect')
         elif st.session_state.get('authentication_status') is None:
@@ -144,7 +144,7 @@ elif st.session_state["menu"] == "Registrarse":
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
         st.session_state["go_to_inicio"] = True
-        st.st.rerun()()
+        st.rerun()
     else:
         try:
             email_of_registered_user, \
@@ -177,7 +177,7 @@ elif st.session_state["menu"] == "Registrarse":
                     st.session_state["email"] = email_of_registered_user
 
                     st.session_state["go_to_inicio"] = True
-                    st.st.rerun()() 
+                    st.rerun() 
 
         except Exception as e:
             st.error(f"Error en el registro: {e}")
@@ -326,4 +326,4 @@ elif st.session_state["menu"] == "Inicio":
     else:
         st.warning("Por favor, inicia sesión para acceder a la aplicación.")
         st.session_state["go_to_login"] = True
-        st.st.rerun()()
+        st.rerun()
