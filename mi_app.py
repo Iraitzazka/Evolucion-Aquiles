@@ -126,7 +126,7 @@ if menu == "Iniciar sesión":
             correo = config['credentials']['usernames'][user]['email']
 
             df = obtener_datos(correo)
-            st.warning("dataframe columns and shape", df.columns, df.shape)
+            st.warning(f"dataframe columns and shape {df.columns}, {df.shape}")
             df["fecha"] = pd.to_datetime(df["fecha"])
 
             # Función para manejar el click
