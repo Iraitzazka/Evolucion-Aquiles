@@ -213,13 +213,12 @@ if menu == "Iniciar sesión":
                 ax.plot(df["fecha"], df_interpolado["dolor_sl_izq"], marker=None, linestyle='-', color='green', label='Saltos Sl izq')
                 ax.plot(df["fecha"], df_interpolado["dolor_sl_desplazamiento"], marker=None, linestyle='-', color='yellow', label='Saltos desplazamiento')
 
-                ax.axvspan(pd.Timestamp('2025-05-31'), pd.Timestamp('2025-06-08'), color='purple', alpha=0.15, label='Periodo inactivo')
+                if user == 'iraitz':
+                    ax.axvline(pd.Timestamp('2025-05-15'), color='black', linestyle='--', linewidth=2)
+                    ax.text(pd.Timestamp('2025-05-15'), 7, '1. visita Igor', verticalalignment='bottom', horizontalalignment='left', color='black')
 
-                ax.axvline(pd.Timestamp('2025-05-15'), color='black', linestyle='--', linewidth=2)
-                ax.text(pd.Timestamp('2025-05-15'), 7, '1. visita Igor', verticalalignment='bottom', horizontalalignment='left', color='black')
-
-                ax.axvline(pd.Timestamp('2025-05-24'), color='black', linestyle='--', linewidth=2)
-                ax.text(pd.Timestamp('2025-05-24'), 7, 'Quemazon al estirar isquio', verticalalignment='bottom', horizontalalignment='left', color='black')
+                    ax.axvline(pd.Timestamp('2025-05-24'), color='black', linestyle='--', linewidth=2)
+                    ax.text(pd.Timestamp('2025-05-24'), 7, 'Quemazon al estirar isquio', verticalalignment='bottom', horizontalalignment='left', color='black')
 
                 label = True
                 for fecha, tick in zip(df["fecha"], df["dias_correr"]):
@@ -279,6 +278,16 @@ elif menu == "Registrarse":
                     "email": email_of_registered_user,
                     "password": hashed_password}, 
                     "users")
+                st.success("Usuario registrado correctamente. Iniciando sesión...")
+
+                # Guardar el usuario como autenticado directamente
+                st.session_state["authentication_status"] = True
+                st.session_state["username"] = username_of_registered_user
+                st.session_state["name"] = name_of_registered_user
+                st.session_state["email"] = email_of_registered_user
+
+                st.rerun()  # Recarga la app como si el usuario hubiese iniciado sesión
+                
     except Exception as e:
         st.error(f"Error en el registro: {e}")
 
