@@ -135,9 +135,13 @@ if st.session_state["menu"] == "Iniciar sesión":
 
 elif st.session_state["menu"] == "Registrarse":
     if st.session_state.get('authentication_status'):
-        st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
-        st.session_state["go_to_inicio"] = True
-        st.rerun()
+        st.warning("Ya estás autenticado. Para registrarte con otro usuario, primero cierra sesión.")
+
+        # Mostrar botón de logout
+        if st.button("Cerrar sesión"):
+            authenticator.logout()  # Esto elimina las claves asociadas del session_state
+            st.session_state["menu"] = "Registrarse"  # Redirigir al registro tras logout
+            st.rerun()
     else:
         try:
             email_of_registered_user, \
