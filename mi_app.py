@@ -105,7 +105,7 @@ if st.session_state.get("go_to_inicio"):
     st.warning("estoy dentro del go to inicio")
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
-    st.rerun()
+
 
 # Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
@@ -113,7 +113,6 @@ if st.session_state.get("go_to_login"):
 
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
-    st.rerun()
 
 menu_radio  = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
 
