@@ -171,12 +171,12 @@ if menu == "Iniciar sesión":
                         eliminar_fila(id_fila)
                         insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
-                                        'dolor_mañanero':dolor_mañanero_hoy, 
-                                        'dolor_dl':dolor_DL, 
-                                        'dolor_sl_izq':dolor_SL_izq, 
-                                        'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
-                                        'dias_correr':correr_hoy, 
-                                        'dias_ejercicio_fuerza':fuerza_hoy},
+                                        'dolor_mañanero':int(dolor_mañanero_hoy), 
+                                        'dolor_dl':int(dolor_DL), 
+                                        'dolor_sl_izq':int(dolor_SL_izq), 
+                                        'dolor_sl_desplazamiento':int(dolor_SL_desplazamiento), 
+                                        'dias_correr':int(correr_hoy), 
+                                        'dias_ejercicio_fuerza':int(fuerza_hoy)},
                                         "aquiles")
                         st.success("Valores sobrescritos.")
                         st.session_state.guardar_click = False
@@ -184,12 +184,12 @@ if menu == "Iniciar sesión":
                 else:
                     insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
-                                        'dolor_mañanero':dolor_mañanero_hoy, 
-                                        'dolor_dl':dolor_DL, 
-                                        'dolor_sl_izq':dolor_SL_izq, 
-                                        'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
-                                        'dias_correr':correr_hoy, 
-                                        'dias_ejercicio_fuerza':fuerza_hoy},
+                                        'dolor_mañanero':int(dolor_mañanero_hoy), 
+                                        'dolor_dl':int(dolor_DL), 
+                                        'dolor_sl_izq':int(dolor_SL_izq), 
+                                        'dolor_sl_desplazamiento':int(dolor_SL_desplazamiento), 
+                                        'dias_correr':int(correr_hoy), 
+                                        'dias_ejercicio_fuerza':int(fuerza_hoy)},
                                         "aquiles")
                     st.success("Valores guardados.")
                     st.session_state.guardar_click = False
