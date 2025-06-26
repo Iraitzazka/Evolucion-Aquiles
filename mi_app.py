@@ -30,8 +30,8 @@ def obtener_datos(correo):
     else:
         return pd.DataFrame(response.data)
 
-def insertar_datos(fila_dict):
-    response = supabase.table("aquiles").insert(fila_dict).execute()
+def insertar_datos(fila_dict, table):
+    response = supabase.table(table).insert(fila_dict).execute()
     error = getattr(response, "error", None)
     if error:
         st.error(f"Error cargando datos.")
@@ -175,7 +175,8 @@ if menu == "Iniciar sesión":
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
                                         'correr_hoy':correr_hoy, 
-                                        'fuerza_hoy':fuerza_hoy})
+                                        'fuerza_hoy':fuerza_hoy},
+                                        "aquiles")
                         st.success("Valores sobrescritos.")
                         st.session_state.guardar_click = False
                         st.rerun()
@@ -187,7 +188,8 @@ if menu == "Iniciar sesión":
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
                                         'correr_hoy':correr_hoy, 
-                                        'fuerza_hoy':fuerza_hoy})
+                                        'fuerza_hoy':fuerza_hoy},
+                                        "aquiles")
                     st.success("Valores guardados.")
                     st.session_state.guardar_click = False
                     st.rerun()
@@ -268,13 +270,12 @@ elif menu == "Registrarse":
                 hashed_password = config['credentials']['usernames'][username_of_registered_user]['password']
 
                 # Insertamos el nuevo usuario en la tabla de supabase
-                data = {
-                    "email": email_of_registered_user,
+                insertar_datos({
                     "username": username_of_registered_user,
                     "name": name_of_registered_user,
-                    "password": hashed_password
-                }
-                insertar_datos(data)
+                    "email": email_of_registered_user,
+                    "password": hashed_password}, 
+                    "users")
     except Exception as e:
         st.error(f"Error en el registro: {e}")
 
