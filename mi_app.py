@@ -100,27 +100,30 @@ hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
-st.warning("estoy fuera del go to inicio y go to login")
+st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')} {st.session_state.get('go_to_login')}")
 if st.session_state.get("go_to_inicio"):
-    st.warning("estoy dentro del go to inicio")
+    st.warning(f"estoy dentro del go to inicio {st.session_state.get('menu', 'No existe')}")
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
 
 
 # Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
-    st.warning("estoy dentro del go to login")
+    st.warning(f"estoy dentro del go to login {st.session_state.get('menu', 'No existe')}")
 
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
 
-menu_radio  = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
-
+# Sidebar controlado por session_state
 if "menu" not in st.session_state:
-    st.session_state["menu"] = menu_radio 
-else:
-    if st.session_state["menu"] != menu_radio:
-        st.session_state["menu"] = menu_radio
+    st.session_state["menu"] = "Iniciar sesión"  # valor por defecto
+
+menu_radio = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], index=["Iniciar sesión", "Registrarse", "Inicio"].index(st.session_state["menu"]))
+
+# Solo actualizamos si hay cambio real
+if menu_radio != st.session_state["menu"]:
+    st.session_state["menu"] = menu_radio
+    st.rerun()
 
 if st.session_state["menu"] == "Iniciar sesión":
     if st.session_state.get('authentication_status'):
