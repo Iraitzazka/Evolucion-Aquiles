@@ -28,7 +28,7 @@ def obtener_datos(correo):
         st.error(f"Error cargando datos: {error.message}")
         return pd.DataFrame()
     else:
-        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanaero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'dias_correr','dias_ejercicio_fuerza'])
+        return pd.DataFrame(response.data, columns=['user','fecha','dolor_mañanero', 'dolor_dl','dolor_sl_izq','dolor_sl_desplazamiento', 'dias_correr','dias_ejercicio_fuerza'])
 
 def insertar_datos(fila_dict, table):
     response = supabase.table(table).insert(fila_dict).execute()
@@ -171,7 +171,7 @@ if menu == "Iniciar sesión":
                         eliminar_fila(id_fila)
                         insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
-                                        'dolor_mañanaero':dolor_mañanero_hoy, 
+                                        'dolor_mañanero':dolor_mañanero_hoy, 
                                         'dolor_dl':dolor_DL, 
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
@@ -184,7 +184,7 @@ if menu == "Iniciar sesión":
                 else:
                     insertar_datos({'user': correo, 
                                         'fecha':hoy_str, 
-                                        'dolor_mañanaero':dolor_mañanero_hoy, 
+                                        'dolor_mañanero':dolor_mañanero_hoy, 
                                         'dolor_dl':dolor_DL, 
                                         'dolor_sl_izq':dolor_SL_izq, 
                                         'dolor_sl_desplazamiento':dolor_SL_desplazamiento, 
