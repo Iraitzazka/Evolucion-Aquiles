@@ -100,14 +100,17 @@ hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
-
+st.warning("estoy fuera del go to inicio y go to login")
 if st.session_state.get("go_to_inicio"):
+    st.warning("estoy dentro del go to inicio")
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
     st.rerun()
 
 # Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
+    st.warning("estoy dentro del go to login")
+
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
     st.rerun()
@@ -171,13 +174,14 @@ elif st.session_state["menu"] == "Registrarse":
                     st.success("Usuario registrado correctamente. Iniciando sesión...")
 
                     # Guardar el usuario como autenticado directamente
-                    st.session_state["authentication_status"] = True
-                    st.session_state["username"] = username_of_registered_user
-                    st.session_state["name"] = name_of_registered_user
-                    st.session_state["email"] = email_of_registered_user
-
-                    st.session_state["go_to_inicio"] = True
-                    st.rerun() 
+                    st.session_state.update({
+                        "authentication_status": True,
+                        "username": username_of_registered_user,
+                        "name": name_of_registered_user,
+                        "email": email_of_registered_user,
+                        "go_to_inicio": True
+                    })
+                    st.rerun()
 
         except Exception as e:
             st.error(f"Error en el registro: {e}")
