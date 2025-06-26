@@ -10,9 +10,9 @@ from google.oauth2.service_account import Credentials
 from supabase import create_client, Client
 import numpy as np
 
+st.text(f"st.session_state arriba del todo = {st.session_state}")
 # Configuración de pandas para evitar downcasting silencioso. Evito warnings
 pd.set_option('future.no_silent_downcasting', True)
-CONFIG_FILE = 'config.yaml'
 
 ##################### Conexion a BD #####################
 SUPABASE_URL = "https://lrlruhxjhqcszslbywxr.supabase.co"
@@ -49,10 +49,6 @@ def eliminar_fila(id_fila):
 ###########################################################################
 
 ##################### Login y autenticación #####################
-with open(CONFIG_FILE) as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-
 
 # Cargar archivo de configuración
 def load_config():
@@ -70,14 +66,6 @@ def load_config():
         }
 
     return config
-# def load_config():
-#     with open(CONFIG_FILE) as file:
-#         return yaml.load(file, Loader=SafeLoader)
-
-# Guardar cambios en archivo de configuración
-def save_config(config):
-    with open(CONFIG_FILE, 'w') as file:
-        yaml.dump(config, file, default_flow_style=False)
 
 # Inicializar autenticador
 def get_authenticator(config):
@@ -100,7 +88,7 @@ hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
-st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')} {st.session_state.get('go_to_login')}")
+st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')} {st.session_state.get('go_to_login', 'No existe')}")
 if st.session_state.get("go_to_inicio"):
     st.warning(f"estoy dentro del go to inicio {st.session_state.get('menu', 'No existe')}")
     st.session_state["menu"] = "Inicio"
@@ -183,6 +171,7 @@ elif st.session_state["menu"] == "Registrarse":
                         "email": email_of_registered_user,
                         "go_to_inicio": True
                     })
+                    st.text(f"st.session_state al final del register = {st.session_state}")
                     st.rerun()
 
         except Exception as e:
