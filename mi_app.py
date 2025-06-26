@@ -10,7 +10,7 @@ from google.oauth2.service_account import Credentials
 from supabase import create_client, Client
 import numpy as np
 
-st.text(f"st.session_state arriba del todo = {st.session_state}")
+st.text(f"st.session_state arriba del todo = {st.session_state.get('menu', 'No existe')}")
 # Configuración de pandas para evitar downcasting silencioso. Evito warnings
 pd.set_option('future.no_silent_downcasting', True)
 
@@ -78,7 +78,7 @@ def get_authenticator(config):
 
 config = load_config()
 authenticator = get_authenticator(config)
-
+st.text(f"st.session_state 2 = {st.session_state.get('menu', 'No existe')}")
 ###########################################################################
 
 ##################### APP #####################
@@ -88,17 +88,16 @@ hoy = datetime.now().date()
 
 # Título de la app
 st.title("Evolucion Aquiles")
-st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')} {st.session_state.get('go_to_login', 'No existe')}")
+st.warning(f"estoy fuera del go to inicio y go to login: {st.session_state.get('menu', 'No existe')}")
 if st.session_state.get("go_to_inicio"):
-    st.warning(f"estoy dentro del go to inicio {st.session_state.get('menu', 'No existe')}")
+    st.warning(f"estoy inicio del go to inicio {st.session_state.get('menu', 'No existe')}")
     st.session_state["menu"] = "Inicio"
     st.session_state["go_to_inicio"] = False
-
+    st.warning(f"estoy final del go to inicio {st.session_state.get('menu', 'No existe')}")
 
 # Control de redirección antes del radio
 if st.session_state.get("go_to_login"):
     st.warning(f"estoy dentro del go to login {st.session_state.get('menu', 'No existe')}")
-
     st.session_state["menu"] = "Iniciar sesión"
     st.session_state["go_to_login"] = False
 
@@ -106,8 +105,10 @@ if st.session_state.get("go_to_login"):
 if "menu" not in st.session_state:
     st.session_state["menu"] = "Iniciar sesión"  # valor por defecto
 
+st.warning(f"antes del menu_radio {st.session_state.get('menu', 'No existe')}")
 menu_radio = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], index=["Iniciar sesión", "Registrarse", "Inicio"].index(st.session_state["menu"]))
-
+st.warning(f"despues del menu_radio {st.session_state.get('menu', 'No existe')}")
+st.warning(f"Menu radio {menu_radio}")
 # Solo actualizamos si hay cambio real
 if menu_radio != st.session_state["menu"]:
     st.session_state["menu"] = menu_radio
