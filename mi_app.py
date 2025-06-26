@@ -101,25 +101,30 @@ hoy = datetime.now().date()
 # Título de la app
 st.title("Evolucion Aquiles")
 
-menu = st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"])
+st.sidebar.radio("Opciones", ["Iniciar sesión", "Registrarse", "Inicio"], key="menu")
 
-if menu == "Iniciar sesión":
-    try:
-        authenticator.login()
-    except Exception as e:
-        st.error(e)
+if st.session_state["menu"] == "Iniciar sesión":
     if st.session_state.get('authentication_status'):
-        authenticator.logout()
-        st.write(f'Welcome *{st.session_state.get("name")}*')
-
+        st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
         st.session_state["menu"] = "Inicio"
-        st.rerun()  
-    elif st.session_state.get('authentication_status') is False:
-        st.error('Username/password is incorrect')
-    elif st.session_state.get('authentication_status') is None:
-        st.warning('Please enter your username and password')
+        st.rerun()
+    else:
+        try:
+            authenticator.login()
+        except Exception as e:
+            st.error(e)
+        if st.session_state.get('authentication_status'):
+            authenticator.logout()
+            st.write(f'Welcome *{st.session_state.get("name")}*')
 
-elif menu == "Registrarse":
+            st.session_state["menu"] = "Inicio"
+            st.rerun()  
+        elif st.session_state.get('authentication_status') is False:
+            st.error('Username/password is incorrect')
+        elif st.session_state.get('authentication_status') is None:
+            st.warning('Please enter your username and password')
+
+elif st.session_state["menu"] == "Registrarse":
     if st.session_state.get('authentication_status'):
         st.warning("Ya estás autenticado. Por favor, cierra sesión para registrarte con otro usuario.")
         st.session_state["menu"] = "Inicio"
@@ -162,7 +167,7 @@ elif menu == "Registrarse":
         except Exception as e:
             st.error(f"Error en el registro: {e}")
 
-elif menu == "Inicio":
+elif st.session_state["menu"] == "Inicio":
     if st.session_state.get('authentication_status'):
 
         user = st.session_state.get("username")
@@ -182,7 +187,7 @@ elif menu == "Inicio":
                 st.session_state.guardar_click = False
             if "confirmar_overwrite" not in st.session_state:
                 st.session_state.confirmar_overwrite = False
-                
+
             # Input: Dolor Mañanero
             dolor_mañanero_hoy = st.number_input("Introduce dolor mañanero de hoy", step=1.0, format="%.2f")
 
